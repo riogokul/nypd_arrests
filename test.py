@@ -1,5 +1,5 @@
 import unittest
-from main import ingest, groupby_ofns_desc
+from main import ingest, groupby_ofns_desc, groupby_age_pdcd
 
 class TestArrestDataProcessing(unittest.TestCase):
 
@@ -13,14 +13,29 @@ class TestArrestDataProcessing(unittest.TestCase):
             {'ARREST_KEY': '184616008', 'PD_CD': '617', 'OFNS_DESC': 'ASSAULT', 'AGE_GROUP': '18-24'}
                         ]
     def test_ingest(self):
-        result = ingest('nypd-arrest-data-2018-1.csv')[1:2]
+        result = ingest('nypd-arrest-data-2018-1.csv')[0]
         self.assertIsNotNone(result)
+
+    def test_read_csv_file_valid(self):
+        data = ingest('nypd-arrest-data-2018-1.csv')
+        self.assertEqual(len(data), 131043)
 
     def test_groupby_ofns_desc(self):
         # Test if data processing produces correct output
         result = groupby_ofns_desc(self.test_data)
         expected_result = [('ASSAULT', 3), ('ROBBERY', 1), ('BURGLARY', 1) ]
         self.assertEqual(result, expected_result)
+
+    def test_groupby_age_pdcd(self):
+        # Test if counting arrests by age group and PD_CD is correct
+        result = groupby_age_pdcd(self.test_data)
+        expected_result = {
+            '18-24': {'617': 1},
+            '45-64': {'969': 1},
+            '25-44': {'244': 1, '198': 1, '849': 1}
+        }
+        self.assertEqual(result, expected_result)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -42,6 +42,29 @@ def groupby_ofns_desc(arrests):
 
     return (final_count)
 
+def groupby_age_pdcd(arrests):
+    """
+       Counting arrests grouped by AGE_GROUP and PD_CD columns.
+
+    Args:
+        arrests (list of dict): List of dictionaries from csv arrest data.
+
+    Returns:
+        dict: Nested dictionary containing counts of arrests grouped by age group and PD_CD.
+    """
+    age_pd_arrests = defaultdict(int)
+    for row in arrests:
+        age_group = row['AGE_GROUP']
+        pd_cd = row['PD_CD']
+        if age_group not in age_pd_arrests:
+            age_pd_arrests[age_group] = defaultdict(int)
+        if pd_cd in age_pd_arrests[age_group]:
+            age_pd_arrests[age_group][pd_cd] += 1
+        else:
+            age_pd_arrests[age_group][pd_cd] = 1
+        
+    return age_pd_arrests
+
 
 if __name__ == '__main__':
     # Ingesting the data from csv file
@@ -55,4 +78,12 @@ if __name__ == '__main__':
     for i, j in ofns_desc_result[:10]:
         print(f"{i}: {j}")
 
- 
+    age_pd_arrests = groupby_age_pdcd(arrests)
+
+    # Retrieving the 4th greatest number of arrests grouped by PD_CD for each age group
+    print("\n4th greatest number of arrests grouped by PD_CD for each AGE_GROUP\n")
+    for age_group, pd_cd in age_pd_arrests.items():
+        sorted_pd_cd = sorted(pd_cd.items(), key=lambda x: x[1], reverse=True)
+        fourth_largest = sorted_pd_cd[3]
+        print(f"Age Group: {age_group}, PD_CD: {fourth_largest[0]}, Arrests: {fourth_largest[1]}")
+
